@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import BranchMap from './components/MapContainer';
@@ -14,6 +13,7 @@ function App() {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [accuracy, setAccuracy] = useState(null);
 
   const filteredBranches = useMemo(() => {
     if (!selectedDistrict) return branchesData;
@@ -57,13 +57,41 @@ function App() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation([position.coords.latitude, position.coords.longitude]);
+          const { latitude, longitude, accuracy } = position.coords;
+          console.log(`✅ GPS Location: ${latitude}, ${longitude} (±${accuracy}m)`);
+          setUserLocation([latitude, longitude]);
+          setAccuracy(accuracy);
           setSelectedDistrict(null);
           setSelectedBranch(null);
+
+          if (accuracy > 1000) {
+            alert("Your location was detected, but it may not be accurate. Try using Wi-Fi or going outside for better results.");
+          }
         },
-        (error) => {
-          console.error('Error getting location:', error);
-          alert('Unable to retrieve your location.');
+        async (error) => {
+          console.warn('⚠️ Browser geolocation failed, falling back to IP-based location.', error);
+          try {
+            const ipRes = await fetch('https://ipinfo.io/json?token=4a6cb1623fc6ce'); // Use your token
+            const ipData = await ipRes.json();
+            if (ipData.loc) {
+              const [lat, lng] = ipData.loc.split(',').map(Number);
+              console.log(`✅ IP Location: ${lat}, ${lng}`);
+              setUserLocation([lat, lng]);
+              setAccuracy(5000); // IP-based accuracy is low
+              setSelectedDistrict(null);
+              setSelectedBranch(null);
+            } else {
+              alert("Couldn't determine your location.");
+            }
+          } catch (ipError) {
+            console.error('❌ IP-based location failed:', ipError);
+            alert('Unable to detect your location using any method.');
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     } else {
@@ -74,6 +102,7 @@ function App() {
   const handleSelectBranch = (branch) => {
     setSelectedBranch(branch);
     setUserLocation(null);
+    setAccuracy(null);
   };
 
   return (
@@ -95,6 +124,7 @@ function App() {
           userLocation={userLocation}
           selectedDistrict={selectedDistrict}
           selectedBranch={selectedBranch}
+          accuracy={accuracy}
         />
       </div>
     </div>

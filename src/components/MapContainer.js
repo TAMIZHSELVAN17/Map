@@ -1,4 +1,3 @@
-// src/components/MapContainer.js
 import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -94,11 +93,13 @@ const BranchMap = ({ branches, selectedBranch, userLocation, selectedDistrict })
         ? highlightIcon
         : branchIcon;
 
-      // Default starting point for directions if userLocation is not available
-      const defaultStartLat = selectedDistrict === "Vellore" ? 12.925261583588235 : (selectedDistrict === "Arni" ? 12.668927940343453 : defaultPosition[0]);
-      const defaultStartLng = selectedDistrict === "Vellore" ? 79.1297358496661 : (selectedDistrict === "Arni" ? 79.28455903019736 : defaultPosition[1]);
-      const startLat = userLocation ? userLocation[0] : defaultStartLat;
-      const startLng = userLocation ? userLocation[1] : defaultStartLng;
+      // Handle the "Get Directions" link click
+      const handleGetDirections = (e) => {
+        if (!userLocation) {
+          e.preventDefault();
+          alert('Please use "Locate Me" or search for your address to set your location before getting directions.');
+        }
+      };
 
       return (
         <Marker
@@ -136,22 +137,24 @@ const BranchMap = ({ branches, selectedBranch, userLocation, selectedDistrict })
               <div style={{ marginBottom: '4px' }}>📞 {branch.phone}</div>
               {branch.email && <div style={{ marginBottom: '6px' }}>✉️ {branch.email}</div>}
               <a
-                href={`https://www.google.com/maps/dir/?api=1&origin=${startLat},${startLng}&destination=${branch.lat},${branch.lng}`}
+                href={userLocation ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation[0]},${userLocation[1]}&destination=${branch.lat},${branch.lng}` : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleGetDirections}
                 style={{
                   display: 'inline-block',
                   marginTop: '6px',
                   padding: '6px 12px',
-                  backgroundColor: '#3498db',
+                  backgroundColor: userLocation ? '#3498db' : '#cccccc',
                   color: '#fff',
                   borderRadius: '4px',
                   textDecoration: 'none',
                   fontWeight: '600',
-                  transition: 'background 0.3s ease'
+                  transition: 'background 0.3s ease',
+                  cursor: userLocation ? 'pointer' : 'not-allowed'
                 }}
-                onMouseEnter={e => e.target.style.backgroundColor = '#2980b9'}
-                onMouseLeave={e => e.target.style.backgroundColor = '#3498db'}
+                onMouseEnter={e => userLocation && (e.target.style.backgroundColor = '#2980b9')}
+                onMouseLeave={e => userLocation && (e.target.style.backgroundColor = '#3498db')}
               >
                 🧭 Get Directions
               </a>
