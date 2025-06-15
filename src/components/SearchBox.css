@@ -1,0 +1,57 @@
+/* src/components/SearchBox.css */
+.search-box {
+  margin-bottom: 1.5rem;
+}
+
+.search-box form {
+  display: flex;
+  align-items: center;
+  border: 2px solid #d0d5dd;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-box form:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #3b82f6;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 0.85rem 1.25rem;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-family: 'Roboto', sans-serif;
+  background: transparent;
+  color: #333;
+}
+
+.search-box input::placeholder {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.search-box button {
+  padding: 0.85rem 1.5rem;
+  background-color: #3b82f6;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.search-box button:hover {
+  background-color: #1e3a8a;
+}
+
+.search-box button svg {
+  color: #ffffff;
+  width: 22px;
+  height: 22px;
+}
